@@ -19,13 +19,12 @@ usersController.getUser = async (req, res) => {
 }
 
 usersController.updateUser = async (req, res) => {
-  await UserModel.findOneAndUpdate({ _id: req.params.id }, req.body )
-  const userUpdate = await UserModel.findOne({ _id: req.params.id })
+  await UserModel.findByIdAndUpdate({ _id: req.params.id }, req.body )
   res.json({message: 'User updated'})
 }
 
 usersController.deleteUser = async (req, res) => {
-  await UserModel.findOneAndDelete(req.params.id)
+  await UserModel.findByIdAndDelete(req.params.id)
   res.json({message: 'User deleted'})
 }
 
