@@ -9,18 +9,45 @@ export default class CreateNote extends Component {
     userSelected: '',
     title: '',
     content: '',
-    date: new Date()
+    date: new Date(),
+    editing: false,
+    _id: ''
   }
 
   async componentDidMount() {
     const res = await axios.get('http://localhost:4000/api/users')
-    this.setState({ users: res.data.map(user => user.username) })
-    console.log(this.state.users)
+    this.setState({
+      users: res.data.map(user => user.username),
+      userSelected: res.data[0].username
+    })
+    if(this.props.match.params.id) {
+      const res = await axios.get(`http://localhost:4000/api/notes/${this.props.match.params.id}`)
+      console.log(res.data)
+      this.setState({
+        title: res.data.title,
+        content: res.data.content,
+        date: new Date(res.data.date),
+        userSelected: res.data.author,
+        editing: true,
+        _id: this.props.match.params.id
+      })
+    }
   }
 
-  onSubmit = (e) => {
+  onSubmit = async e => {
     e.preventDefault()
-    console.log(this.state)
+    const newNote = {
+      title: this.state.title,
+      content: this.state.content,
+      date: this.state.date,
+      author: this.state.userSelected
+    }
+    if(this.state.editing) {
+      await axios.put(`http://localhost:4000/api/notes/${this.state._id}`, newNote)
+    } else {
+      await axios.post('http://localhost:4000/api/notes', newNote)
+    }
+    window.location.href = '/'
   }
 
   onInputChange = e => {
@@ -37,8 +64,7 @@ export default class CreateNote extends Component {
     return (
       <div className="col-md-6 offset-md-3">
         <div className="card card-body">
-          <h4>Crear Nota</h4>
-
+          <h4>{ !this.state.editing ? "Crear" : "Editar"} Nota</h4>
           {/* SELECT USER */}
           <form onSubmit={this.onSubmit}>
             <div className="form-group">
@@ -46,6 +72,7 @@ export default class CreateNote extends Component {
                 className="form-control"
                 name="userSelected"
                 onChange={this.onInputChange}
+                value={this.state.userSelected}
               >
                 {
                   this.state.users.map(user =>
@@ -63,6 +90,7 @@ export default class CreateNote extends Component {
                 placeholder="Título"
                 name="title"
                 onChange={this.onInputChange}
+                value={this.state.title}
                 required
                 />
             </div>
@@ -73,6 +101,7 @@ export default class CreateNote extends Component {
                 className="form-control"
                 onChange={this.onInputChange}
                 placeholder="Contenido"
+                value={this.state.content}
                 required
               >
               </textarea>

@@ -24,12 +24,12 @@ notesController.getNote = async (req, res) => {
 }
 
 notesController.updateNote = async (req, res) => {
-  await NoteModel.findOneAndUpdate({ _id: req.params.id }, req.body)
+  await NoteModel.findByIdAndUpdate({ _id: req.params.id }, req.body)
   res.json({message: 'Note updated'})
 }
 
 notesController.deleteNote = async (req, res) => {
-  await NoteModel.findOneAndDelete(req.params.id)
+  await NoteModel.findByIdAndDelete(req.params.id)
   res.json({message: 'Note deleted'})
 }
 
